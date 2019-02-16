@@ -13,7 +13,8 @@ namespace MDSD_P
         private State buildingState;
         private Transition buildingtransition;
 
-        public State CurrentState { get; private set; }
+        public State _CurrentState { get; private set; }
+        public List<State> States { get => states; }
 
         public abstract void Build();
 
@@ -22,7 +23,7 @@ namespace MDSD_P
             if (buildingState != null)
             {
                 buildingState.Transitions.Add(buildingtransition);
-                states.Add(buildingState);
+                States.Add(buildingState);
             }
             buildingState = new State(name);
             return this;
@@ -58,43 +59,48 @@ namespace MDSD_P
             return this;
         }
 
+        public void StartState(string StateName)
+        {
+            States.Add(buildingState);
+            _CurrentState = States.Find(s => s.Name.Equals(StateName));
+        }
+
+
+        //Execution
         public State Action(string changeAttribute, float value)
         {
+            State oldState = null;
+            do
+            {
+                oldState = _CurrentState;
+                _CurrentState = NextState(oldState, changeAttribute, value);
 
-            State newState = null;
-            var attributeValue = CurrentState.Attributes.Find(a => a.Name.Equals(changeAttribute));
+            } while (!oldState.Name.Equals(_CurrentState.Name));
+            return _CurrentState;   
+        }
+
+        private State NextState(State currentState, string changeAttribute, float value)
+        {
+            State newState = currentState;
+            var attributeValue = currentState.Attributes.Find(a => a.Name.Equals(changeAttribute));
             if (attributeValue == null)
             {
                 Console.WriteLine("Attribute not found: " + changeAttribute);
-                return CurrentState;
+                return currentState;
             }
 
-            Console.WriteLine("Changing Attribute: " + attributeValue.Name + " with: " + value);
+            Console.WriteLine("Changing Attribute: " + attributeValue.Name + " old value: "+ attributeValue.Value +" with: " + value + " On state: "+ currentState.Name);
             attributeValue.Value += value;
 
-            foreach (Transition currentTransition in CurrentState.Transitions)
+            foreach (Transition currentTransition in _CurrentState.Transitions)
             {
                 if (currentTransition.ControlAttribute.Equals(attributeValue.Name) && currentTransition.ShouldTransition(attributeValue.Value))
                 {
                     newState = states.Find(state => state.Name.Equals(currentTransition.TargetState));
-                    if (newState != null && newState.Attributes.Exists(a => a.Name.Equals(attributeValue.Name)))
-                    {
-                        newState.Attributes.Find(a => a.Name.Equals(attributeValue.Name)).Value = attributeValue.Value;
-                    }
                 }
             }
 
-            if (newState != null)
-            {
-                CurrentState = newState;
-            }
-            return CurrentState;
-        }
-
-        public void StartState(string StateName)
-        {
-            states.Add(buildingState);
-            CurrentState = states.Find(s => s.Name.Equals(StateName));
+            return newState;
         }
     }
 }

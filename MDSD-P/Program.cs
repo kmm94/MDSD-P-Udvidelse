@@ -12,11 +12,13 @@ namespace MDSD_P
         {
             MyWeather myWeather = new MyWeather();
             myWeather.Build();
-            Console.WriteLine(myWeather.CurrentState);
-            Console.WriteLine(myWeather.Action("Temperture", 20).ToString());
-            Console.WriteLine(myWeather.Action("Temperture", -10).ToString());
-            Console.WriteLine(myWeather.Action("Temperture", 30).ToString());
-            Console.WriteLine(myWeather.Action("Temperture", 1).ToString());
+            Console.WriteLine(myWeather._CurrentState);
+            Console.WriteLine(myWeather.Action(MyWeather.temperture, 20).ToString());
+            Console.WriteLine(myWeather.Action(MyWeather.temperture, -10).ToString());
+            Console.WriteLine(myWeather.Action(MyWeather.temperture, 30).ToString());
+            Console.WriteLine(myWeather.Action(MyWeather.temperture, 1).ToString());
+            Console.WriteLine(myWeather.Action(MyWeather.wind, 1).ToString());
+            Console.WriteLine(myWeather.Action(MyWeather.temperture, -50).ToString());
             Console.ReadLine();
             
         }
